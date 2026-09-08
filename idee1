@@ -1,4 +1,4 @@
-# /**
+/**
  * Handlers globaux - Orchestration des actions utilisateur.
  * Appelle les modules API, UI et Payload selon les besoins.
  */
