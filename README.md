@@ -1,287 +1,438 @@
-# /**
- * Handlers globaux - Orchestration des actions utilisateur.
- * Appelle les modules API, UI et Payload selon les besoins.
- */
+const SybrisUI = {
+    // État global
+    selectedBase: null,
+    selectedTypeDonnee: null,
 
-// ============ HANDLERS MODE & SECTIONS ============
+    /**
+     * Vrai tant que le fetch /sybris/flux (déclenché par index.js au
+     * chargement) n'a pas encore résolu, ET tant que le flux reste vide
+     * ensuite. Sert à updateEnteteFormVisibility pour recalculer la
+     * visibilité à chaque changement de base (pas seulement à chaque
+     * changement du flux) : les deux conditions doivent être vraies en
+     * même temps pour révéler #enteteForm.
+     */
+    fluxIsEmpty: true,
 
-function toggleMode(mode) {
-    SybrisUI.toggleMode(mode);
-}
+    // ============ GESTION DE L'ÉTAT ============
 
-function toggleSection(sectionId) {
-    SybrisUI.toggleSection(sectionId);
-}
+    setBase(base) {
+        this.selectedBase = base;
+        const element = document.getElementById('selectedBase');
+        if (element) element.value = base;
+    },
 
-/** Replie/déplie une sous-section nommée (ex: "Identification du prêt"). */
-function toggleSubsection(headerEl) {
-    SybrisUI.toggleSubsection(headerEl);
-}
+    getBase() {
+        return this.selectedBase;
+    },
 
-function selectBase(base) {
-    SybrisUI.selectBase(base);
-}
+    setTypeDonnee(type) {
+        this.selectedTypeDonnee = type;
+        const element = document.getElementById('selectedTypeDonnee');
+        if (element) element.value = type;
+    },
 
-function selectTypeDossier(type) {
-    SybrisUI.selectTypeDossier(type);
-}
+    getTypeDonnee() {
+        return this.selectedTypeDonnee;
+    },
 
-// ============ HANDLERS PRÊTS (clonage du formulaire) ============
+    // ============ TOGGLE MODE MANUEL/IMPORT ============
 
-/** Clone le formulaire prêt (vide) et crée une nouvelle section "Informations prêt n°N". */
-function addPret() {
-    SybrisPayload.addPret();
-}
+    toggleMode(mode) {
+        const manualZone = document.getElementById('manualZone');
+        const importZone = document.getElementById('importZone');
+        const isManual = mode === 'manual';
 
-/** Supprime intégralement une section de prêt (formulaire + échéances + capitaux). */
-function removePret(pretId) {
-    SybrisPayload.removePret(pretId);
-}
-
-/**
- * Ajoute une ligne éditable (échéance ou capital) dans le tableau du prêt donné.
- * @param {'echeance'|'capital'} type
- * @param {number} pretId
- */
-function addSubItemRow(type, pretId) {
-    SybrisPayload.addSubItemRow(type, pretId);
-}
-
-/**
- * Supprime une ligne (échéance ou capital) du tableau du prêt donné.
- * @param {'echeance'|'capital'} type
- * @param {number} pretId
- * @param {number} rowId
- */
-function removeSubItemRow(type, pretId, rowId) {
-    SybrisPayload.removeSubItemRow(type, pretId, rowId);
-}
-
-// ============ VALIDATION NATIVE (HTML5 required, sans submit réel) ============
-
-/**
- * Un élément dont un ancêtre est en display:none n'est PAS "barred from
- * constraint validation" au sens HTML5 : seuls hidden/disabled/readonly/
- * datalist le sont. Un champ required vide caché dans un bloc base/type non
- * sélectionné (.base-block, .base-type-block) reste donc "invalide" pour
- * reportValidity() — simplement, comme il n'est pas focusable, le navigateur
- * ne peut pas afficher sa bulle d'erreur, mais la méthode renvoie quand même
- * false : previewDossier() se bloquait silencieusement, sans rien afficher,
- * dès qu'un required d'une AUTRE base était vide.
- *
- * offsetParent === null est le moyen fiable de détecter "cet élément (ou un
- * de ses ancêtres) est en display:none" — on l'utilise pour scoper
- * explicitement la validation aux seuls champs réellement visibles (donc à
- * la base/au type actuellement sélectionné), au lieu de compter sur un
- * comportement du navigateur qui ne fait pas ça pour nous.
- * (Ne fonctionne pas pour position:fixed, non utilisé dans ces formulaires.)
- */
-function _isRenderedInDocument(control) {
-    return control.offsetParent !== null;
-}
-
-/**
- * Valide tous les champs (input/select/textarea) "required" VISIBLES à
- * l'intérieur d'un conteneur — form OU simple div, peu importe — en
- * réutilisant la validation native du navigateur (bulle d'erreur + focus
- * inclus), sans déclencher de vraie soumission de formulaire.
- *
- * Les champs non rendus (display:none, propre ou hérité d'un ancêtre — donc
- * les .base-block / .base-type-block des bases/types non sélectionnés) sont
- * explicitement ignorés via _isRenderedInDocument, plutôt que de compter sur
- * le navigateur pour le faire (voir sa doc ci-dessus : il ne le fait pas).
- *
- * @param {HTMLElement|null} container
- * @returns {boolean} true si tout est valide (ou container absent)
- */
-function _reportContainerValidity(container) {
-    if (!container) return true;
-
-    const controls = container.querySelectorAll('input, select, textarea');
-    for (const control of controls) {
-        if (!_isRenderedInDocument(control)) continue; // hors du bloc base/type actif : ignoré
-        if (!control.reportValidity()) {
-            return false; // le navigateur a déjà affiché la bulle et mis le focus
+        if (manualZone) {
+            manualZone.classList.toggle('hidden', !isManual);
         }
-    }
-    return true;
-}
+        if (importZone) {
+            importZone.classList.toggle('hidden', isManual);
+        }
+    },
 
-// ============ HANDLERS PREVIEW ============
+    // ============ TOGGLE SECTIONS ============
 
-async function previewDossier() {
-    const sharedFields = document.getElementById('shared-fields');
-    const dossierForm = document.getElementById('dossier-form');
+    toggleSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        if (section) {
+            section.classList.toggle('collapsed');
+        }
+    },
 
-    if (!_reportContainerValidity(sharedFields) || !_reportContainerValidity(dossierForm)) {
-        return; // bulle déjà affichée par le navigateur, on s'arrête là
-    }
+    /** Replie/déplie une sous-section nommée (ex: "Identification du prêt"). */
+    toggleSubsection(headerEl) {
+        const subsection = headerEl.closest('.form-subsection');
+        if (subsection) {
+            subsection.classList.toggle('collapsed');
+        }
+    },
 
-    const payload = SybrisPayload.build();
+    getActiveBaseTypeBlock() {
+        const form = document.getElementById('dossier-form');
+        if (!form) return null;
+        const type = this.getTypeDonnee();
+        const base = this.getBase();
+        return form.querySelector(`.base-type-block[data-base="${base}"][data-type="${type}"]`);
+    },
 
-    if (!payload.base || !payload.typeDeclaration) {
-        SybrisUI.displayPreview({
-            success: false,
-            errorMessage: 'Veuillez sélectionner une base et un type de dossier avant la prévisualisation.'
+    getActiveField(name) {
+        return this.getActiveBaseTypeBlock()?.querySelector(`[name="${name}"]`) || null;
+    },
+
+    toggleConditionalStar(root, fieldName, enabled) {
+        if (!root) return;
+        root.querySelectorAll(`[name="${fieldName}"]`).forEach(input => {
+            const container = input.closest('.input-container, .form-select');
+            const star = container?.querySelector('.sybris-conditional-mark');
+            if (star) {
+                star.classList.toggle('hidden', !enabled);
+            }
+            if (container) {
+                container.classList.toggle('is-conditionally-required', enabled);
+            }
         });
-        return;
-    }
+    },
 
+    refreshConditionalStars() {
+        const base = this.getBase();
+        const type = this.getTypeDonnee();
+        const risque = this.getRisqueSelect()?.value || '';
+        const etatCivil = this.getActiveField('etatCivil')?.value || '';
+        const demandeControleMedical = this.getActiveField('demandeControleMedical')?.value || '';
 
-    try {
-        const result = await SybrisApi.preview(payload.typeDeclaration, payload.base, payload);
-        SybrisUI.displayPreview(result);
-    } catch (error) {
-        console.error('Erreur prévisualisation:', error);
-        SybrisUI.displayPreview({ success: false, errorMessage: error.message });
-    }
-}
+        const activeBlock = this.getActiveBaseTypeBlock();
+        const isBaseA = base === 'A';
+        const isDeclaration = type === 'DECLARATION';
+        const isProlongation = type === 'PROLONGATION';
+        const periodicRisk = isBaseA ? ['3', '4'] : ['1', '4'];
+        const socialRisk = isBaseA ? ['1', '2', '3', '5'] : ['1', '3', '4', '5'];
+        const dureePretRisk = ['1', '2', '5'];
 
-/**
- * Valide l'enregistrement En-tête (type 01). L'en-tête est postée
- * directement dans le flux côté back (fluxService.setHeader) dès que la
- * réponse est positive : pas de bouton "Ajouter au flux" à cliquer en plus,
- * on rafraîchit directement l'affichage du flux et on réinitialise le
- * formulaire. clearPreview() (et pas seulement hidePreviewActions) masque
- * toute la zone de preview : sinon la trame restait affichée deux fois
- * (dans #preview-content ET dans #flux-content).
- */
-async function validerEntete() {
-    const sharedFields = document.getElementById('shared-fields');
-    const enteteForm = document.getElementById('enteteForm');
+        this.toggleConditionalStar(activeBlock, 'nomJeuneFille', etatCivil === '2');
+        this.toggleConditionalStar(activeBlock, 'dateDebPerJustifiee', isProlongation || periodicRisk.includes(risque));
+        this.toggleConditionalStar(activeBlock, 'dateFinPeriodeJustifiee', isProlongation || periodicRisk.includes(risque));
+        this.toggleConditionalStar(activeBlock, 'codeAssureSocial', isDeclaration && socialRisk.includes(risque));
+        this.toggleConditionalStar(activeBlock, 'codePrestationsEspece', isDeclaration && socialRisk.includes(risque));
+        this.toggleConditionalStar(activeBlock, 'dateNotificationChomage', isBaseA && isDeclaration && risque === '4');
+        this.toggleConditionalStar(activeBlock, 'codeSalarie', !isBaseA && isDeclaration && risque === '1');
+        this.toggleConditionalStar(activeBlock, 'motifSuspension', demandeControleMedical === 'O');
 
-    if (!_reportContainerValidity(sharedFields) || !_reportContainerValidity(enteteForm)) {
-        return;
-    }
-
-    const base = SybrisPayload.getBase();
-    if (!base) {
-        SybrisUI.displayPreview({
-            success: false,
-            errorMessage: 'Sélectionnez une base avant de valider l\'en-tête.'
+        document.querySelectorAll('#prets-container .pret-instance').forEach(pret => {
+            const modaliteEntree = pret.querySelector('[name="modaliteEntree"]')?.value || '';
+            this.toggleConditionalStar(pret, 'referenceLiasse', modaliteEntree === 'QSC');
+            this.toggleConditionalStar(pret, 'dateSignature', modaliteEntree === 'QSC');
+            this.toggleConditionalStar(pret, 'dateAcceptation', modaliteEntree === 'QSC');
+            this.toggleConditionalStar(pret, 'dureePret', isBaseA && isDeclaration && dureePretRisk.includes(risque));
+            this.toggleConditionalStar(pret, 'optionPersonneAgee', !isBaseA && isDeclaration && risque !== '4' && risque !== '');
+            this.toggleConditionalStar(pret, 'dateOrigine', !isBaseA && isDeclaration && risque === '4');
         });
-        return;
-    }
+    },
 
-    const payload = SybrisPayload.buildEntete();
-
-    try {
-        const result = await SybrisApi.previewEntete(base, payload);
-
-        if (result.success) {
-            // Postée directement en flux côté back : on n'affiche PAS de
-            // preview séparée, on rafraîchit juste le flux.
-            SybrisUI.clearPreview();
-            SybrisUI.displayFlux(result.fluxDossiers);
-            if (enteteForm) enteteForm.reset();
-            SybrisPayload.lastKind = null;
-        } else {
-            SybrisUI.displayPreview(result);
+    initConditionalStars() {
+        if (!document.body.dataset.sybrisConditionalStarsBound) {
+            document.body.dataset.sybrisConditionalStarsBound = 'true';
+            document.addEventListener('change', event => {
+                const fieldName = event.target?.name;
+                if (['risque', 'etatCivil', 'demandeControleMedical', 'modaliteEntree'].includes(fieldName)) {
+                    this.refreshConditionalStars();
+                }
+            });
         }
-    } catch (error) {
-        console.error('Erreur validation en-tête:', error);
-        SybrisUI.displayPreview({ success: false, errorMessage: error.message });
-    }
-}
+        this.refreshConditionalStars();
+    },
 
-/**
- * Valide l'enregistrement Final (type 09). Même principe que l'en-tête :
- * posé directement dans le flux côté back dès validation.
- */
-async function validerFinal() {
-    const sharedFields = document.getElementById('shared-fields');
-    const finalForm = document.getElementById('final-form');
+    // ============ SÉLECTION DE LA BASE ============
 
-    if (!_reportContainerValidity(sharedFields) || !_reportContainerValidity(finalForm)) {
-        return;
-    }
+    selectBase(base) {
+        const changed = this.getBase() !== base;
+        this.setBase(base);
 
-    const base = SybrisPayload.getBase();
-    if (!base) {
-        SybrisUI.displayPreview({
-            success: false,
-            errorMessage: 'Sélectionnez une base avant de valider le final.'
+        document.querySelectorAll('.base-block').forEach(block => {
+            block.style.display = block.dataset.base === base ? 'block' : 'none';
         });
-        return;
-    }
 
-    const payload = SybrisPayload.buildFinal();
-
-    try {
-        const result = await SybrisApi.previewFinal(base, payload);
-
-        if (result.success) {
-            SybrisUI.clearPreview();
-            SybrisUI.displayFlux(result.fluxDossiers);
-            if (finalForm) finalForm.reset();
-            SybrisPayload.lastKind = null;
-        } else {
-            SybrisUI.displayPreview(result);
+        // Passe à l'étape 2 (type de dossier)
+        const typeSelection = document.getElementById('type-selection');
+        if (typeSelection) {
+            typeSelection.classList.remove('hidden');
         }
-    } catch (error) {
-        console.error('Erreur validation final:', error);
-        SybrisUI.displayPreview({ success: false, errorMessage: error.message });
-    }
-}
 
-async function clearPreview() {
-    SybrisUI.clearPreview();
-    try {
-        await SybrisApi.clearPreview();
-    } catch (error) {
-        console.error('Erreur clear preview:', error);
-    }
-}
+        // La base vient de changer : recalcule la visibilité de l'en-tête
+        // (elle dépend aussi de "une base est sélectionnée", pas seulement
+        // du flux). Nécessaire aussi bien au tout premier clic sur une base
+        // qu'à un changement de base ultérieur.
+        this.updateEnteteFormVisibility(this.fluxIsEmpty);
 
-// ============ HANDLERS FLUX ============
-
-/**
- * Ajoute au flux le dossier (déclaration/prolongation) qui vient d'être
- * prévisualisé. L'en-tête et le final ne passent plus par ce chemin : ils
- * sont ajoutés automatiquement dès leur validation (voir validerEntete /
- * validerFinal), donc ce bouton ne concerne plus que le formulaire dossier.
- */
-async function addToFlux() {
-    try {
-        const result = await SybrisApi.addToFlux();
-        if (result.success) {
-            SybrisUI.displayFlux(result.fluxDossiers);
-            SybrisUI.resetDossierForm();
-            SybrisUI.clearPreview();
-            SybrisPayload.lastKind = null;
-        } else {
-            alert(result.errorMessage || 'Erreur lors de l\'ajout au flux');
+        if (changed) {
+            // On repart d'un type de dossier non sélectionné et d'un formulaire vide
+            this.setTypeDonnee(null);
+            document.querySelectorAll('input[name="typeDonnee"]').forEach(r => r.checked = false);
+            document.getElementById('dossier-form')?.classList.add('hidden');
+            SybrisPayload.clearPrets();
+            SybrisPayload.clearItems('echeance');
+            SybrisPayload.clearItems('capital');
         }
-    } catch (error) {
-        console.error('Erreur addToFlux:', error);
-        alert('Erreur lors de l\'ajout au flux');
+    },
+
+    // ============ SÉLECTION TYPE DOSSIER ============
+
+    selectTypeDossier(type) {
+        this.setTypeDonnee(type);
+
+        const form = document.getElementById('dossier-form');
+        if (!form) return;
+
+        form.classList.remove('hidden');
+
+        const base = this.getBase();
+
+        // Affiche uniquement les blocs correspondant à la base ET au type sélectionnés
+        form.querySelectorAll('.base-type-block').forEach(block => {
+            const matches = block.dataset.base === base && block.dataset.type === type;
+            block.style.display = matches ? 'block' : 'none';
+        });
+
+        // Titre / icône
+        const title = document.getElementById('dossier-title');
+        const icon = document.getElementById('dossier-icon');
+        if (title) {
+            title.textContent = type === 'DECLARATION'
+                ? `Dossier Déclaration (Base ${base})`
+                : `Dossier Prolongation (Base ${base})`;
+        }
+        if (icon) {
+            icon.textContent = type === 'DECLARATION' ? '📄' : '⏳';
+        }
+
+        SybrisPayload.clearPrets();
+        SybrisPayload.clearItems('echeance');
+        SybrisPayload.clearItems('capital');
+
+        SybrisPayload.init();
+        this.initRiskConstraints();
+        this.initConditionalStars();
+    },
+
+    // ============ CONTRAINTES MÉTIER SELON LE RISQUE ============
+
+    // Risques autorisant l'ajout de sous-items (capital / échéance).
+    // ATTENTION : les codes de risque diffèrent selon la base (cf. enums Java
+    // BaseARisqueEnum / BaseBRisqueEnum / BaseCRisqueEnum) :
+    //   - Base A : 1=Décès, 2=IPA, 3=ITT, 4=Chômage, 5=ITD
+    //   - Base B/C : 1=Incapacité travail, 2=Décès, 3=IPA, 4=Chômage, 5=ITD
+    RISK_RULES: {
+        A: { capital: ['1', '2', '5'], echeance: ['3', '4'] }, // Décès, IPA, ITD / ITT, Chômage
+        B: { capital: ['2', '3'], echeance: ['1', '4'] },      // Décès, IPA / Incapacité travail, Chômage
+        C: { capital: ['2', '3'], echeance: ['1', '4'] }
+    },
+
+    /** Sélecteur de risque du bloc actuellement visible. */
+    getRisqueSelect() {
+        const form = document.getElementById('dossier-form');
+        if (!form) return null;
+        const type = this.getTypeDonnee();
+        const base = this.getBase();
+        return form.querySelector(
+            `.base-type-block[data-base="${base}"][data-type="${type}"] select[name="risque"]`);
+    },
+
+    /**
+     * Affiche/masque les blocs « Saisie des échéances » et « Saisie des
+     * capitaux » de CHAQUE prêt ajouté, selon le risque du dossier (champ
+     * partagé, unique pour tout le dossier). Ces blocs sont générés
+     * dynamiquement par SybrisPayload (un bloc échéance + un bloc capital
+     * par prêt), on les cible via l'attribut data-subtype.
+     */
+    updateRiskConstraints() {
+        const risque = this.getRisqueSelect()?.value || '';
+        const isDeclaration = this.getTypeDonnee() === 'DECLARATION';
+        const rules = this.RISK_RULES[this.getBase()] || this.RISK_RULES.B;
+
+        document.querySelectorAll('#prets-container .pret-subitems-block[data-subtype="echeance"]')
+            .forEach(el => {
+                el.style.display = rules.echeance.includes(risque) ? '' : 'none';
+            });
+        document.querySelectorAll('#prets-container .pret-subitems-block[data-subtype="capital"]')
+            .forEach(el => {
+                el.style.display = (isDeclaration && rules.capital.includes(risque)) ? '' : 'none';
+            });
+    },
+
+    /** Branche l'écouteur sur le sélecteur de risque et applique l'état initial. */
+    initRiskConstraints() {
+        const risqueSelect = this.getRisqueSelect();
+        if (risqueSelect && !risqueSelect.dataset.riskBound) {
+            risqueSelect.dataset.riskBound = 'true';
+            risqueSelect.dataset.previousRisk = risqueSelect.value || '';
+            risqueSelect.addEventListener('change', () => {
+                const current = risqueSelect.value || '';
+                if (current !== (risqueSelect.dataset.previousRisk || '')) {
+                    // Le risque change : les sous-items précédents ne sont plus valides
+                    SybrisPayload.clearItems('echeance');
+                    SybrisPayload.clearItems('capital');
+                }
+                risqueSelect.dataset.previousRisk = current;
+                this.updateRiskConstraints();
+            });
+        }
+        this.updateRiskConstraints();
+    },
+
+    // ============ AFFICHAGE PREVIEW ============
+
+    displayPreview(previewData) {
+        const previewSection = document.getElementById('preview-section');
+        const previewContent = document.getElementById('preview-content');
+        const previewActions = document.getElementById('preview-actions');
+
+        if (!previewSection || !previewContent) return;
+
+        if (previewData && previewData.success && previewData.trames) {
+            let html = '<div class="trame-container-success">';
+            
+            // trames est un String - on split par ligne pour l'affichage
+            const lignes = previewData.trames.split(/\/n|\r?\n/).filter(l => l.trim() !== '');
+            lignes.forEach(ligne => {
+                html += `<div class="trame-line">${ligne}</div>`;
+            });
+            
+            html += '</div>';
+            previewContent.innerHTML = html;
+            previewSection.classList.remove('hidden');
+            previewSection.style.display = 'block';
+            if (previewActions) {
+                previewActions.classList.remove('hidden');
+                previewActions.style.display = 'flex';
+            }
+        } else {
+            const errorMsg = previewData?.errorMessage || 'Erreur inconnue';
+            previewContent.innerHTML = `
+                <div class="trame-container-error">
+                    <p>${errorMsg}</p>
+                </div>`;
+            previewSection.classList.remove('hidden');
+            previewSection.style.display = 'block';
+            if (previewActions) {
+                previewActions.classList.add('hidden');
+                previewActions.style.display = 'none';
+            }
+        }
+    },
+
+    clearPreview() {
+        const previewSection = document.getElementById('preview-section');
+        const previewActions = document.getElementById('preview-actions');
+        if (previewSection) {
+            previewSection.classList.add('hidden');
+            previewSection.style.display = 'none';
+        }
+        if (previewActions) {
+            previewActions.classList.add('hidden');
+            previewActions.style.display = 'none';
+        }
+    },
+
+    // ============ AFFICHAGE FLUX ============
+
+    displayFlux(fluxData) {
+        const fluxView = document.getElementById('flux-content');
+        const fluxActions = document.getElementById('flux-actions');
+
+        const dossiers = fluxData || [];
+        const fluxIsEmpty = dossiers.length === 0;
+        this.fluxIsEmpty = fluxIsEmpty;
+
+        // Le champ "N° Séquence" et le formulaire En-tête ne doivent être
+        // visibles que tant que le flux est totalement vide (et, pour
+        // l'en-tête, qu'une base a été sélectionnée — voir
+        // updateEnteteFormVisibility).
+        this.updateSequenceFieldVisibility(fluxIsEmpty);
+        this.updateEnteteFormVisibility(fluxIsEmpty);
+
+        if (!fluxView) return;
+
+        if (fluxIsEmpty) {
+            fluxView.innerHTML = '<p class="empty-flux-message">Aucune trame dans le flux</p>';
+            if (fluxActions) {
+                fluxActions.classList.add('hidden');
+                fluxActions.style.display = 'none';
+            }
+        } else {
+            let html = '';
+            dossiers.forEach((dossier, index) => {
+                // frame est un String côté Java (la trame générée)
+                if (dossier.frame) {
+                    const lignes = dossier.frame.split(/\/n|\r?\n/).filter(l => l.trim() !== '');
+                    lignes.forEach(ligne => {
+                        html += `<div class="trame-line">${ligne}</div>`;
+                    });
+                }
+                if (index < dossiers.length - 1) {
+                    html += '<hr class="trame-separator">';
+                }
+            });
+            fluxView.innerHTML = html || '<p class="empty-flux-message">Aucune trame dans le flux</p>';
+            if (fluxActions && html) {
+                fluxActions.classList.remove('hidden');
+                fluxActions.style.display = 'block';
+            }
+        }
+    },
+
+    /**
+     * Affiche ou masque le champ #sequence-field-wrapper (N° Séquence
+     * d'enregistrement) selon que le flux est vide ou non. Le rendu JSP ne
+     * s'exécute qu'au premier chargement de page ; comme toutes les actions
+     * suivantes se font en AJAX sans rechargement, c'est ce toggle qui tient
+     * l'affichage à jour ensuite.
+     */
+    updateSequenceFieldVisibility(fluxIsEmpty) {
+        const wrapper = document.getElementById('sequence-field-wrapper');
+        if (wrapper) {
+            wrapper.style.display = fluxIsEmpty ? '' : 'none';
+        }
+    },
+
+    /**
+     * Révèle #enteteForm seulement si les DEUX conditions sont vraies :
+     * flux vide ET une base est sélectionnée. Le JSP part de
+     * style="display:none" (évite le flash visible avant que le fetch
+     * initial /sybris/flux ait résolu) ; on ne l'enlève ("") que si les
+     * deux conditions tiennent, sinon on le repose explicitement à "none"
+     * (utile si le flux redevient vide après un clearFlux() alors qu'aucune
+     * base n'est encore sélectionnée : il ne doit pas apparaître tout seul).
+     * Appelée depuis displayFlux() (le flux change) ET selectBase() (la
+     * base change) : les deux évènements peuvent faire basculer le résultat.
+     */
+    updateEnteteFormVisibility(fluxIsEmpty) {
+        const enteteForm = document.getElementById('enteteForm');
+        if (!enteteForm) return;
+        const hasBase = !!this.getBase();
+        enteteForm.style.display = (fluxIsEmpty && hasBase) ? '' : 'none';
+    },
+
+    // ============ RESET DOSSIER ============
+
+    resetDossierForm() {
+        const form = document.getElementById('dossier-form');
+        if (!form) return;
+
+        // 1. Vider les éléments répétables (échéances / capitaux)
+        SybrisPayload.clearPrets();
+        SybrisPayload.clearItems('echeance');
+        SybrisPayload.clearItems('capital');
+
+        // 2. Vider les champs saisissables (les champs readonly gardent leur valeur)
+        form.querySelectorAll('input, select, textarea').forEach(input => {
+            if (input.readOnly || input.classList.contains('readonly-field')) return;
+            if (input.type === 'checkbox' || input.type === 'radio') {
+                input.checked = false;
+            } else {
+                input.value = '';
+            }
+        });
+
+        // 3. Réappliquer les contraintes de risque (risque désormais vidé)
+        this.updateRiskConstraints();
     }
-}
-
-async function clearFlux() {
-    if (!confirm('Êtes-vous sûr de vouloir vider le flux ?')) {
-        return;
-    }
-
-    try {
-        await SybrisApi.clearFlux();
-        SybrisUI.displayFlux([]);
-    } catch (error) {
-        console.error('Erreur clearFlux:', error);
-        alert('Erreur lors du vidage du flux');
-    }
-}
-
-function telechargerDossiers() {
-    SybrisApi.telecharger();
-}
-
-// ============ HANDLERS RESET ============
-
-function resetDossier() {
-    if (!confirm('Êtes-vous sûr de vouloir réinitialiser le dossier ?')) {
-        return;
-    }
-    SybrisUI.resetDossierForm();
-    clearPreview();
-}
+};
