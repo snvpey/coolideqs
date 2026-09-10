@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="6acf603a-bcb4-4cb4-9d05-7c05c7a03695" name="Changes" comment="hhj">
+      <change afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/pages/sybris/formulaires/unifie/templates.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/coolideqs.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/copilot.data.migration.ask2agent.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/idee1" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/sybris/api.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/sybris/api.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/resources/js/sybris/api.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/sybris/handlers.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/sybris/handlers.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/resources/js/sybris/handlers.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/sybris/index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/sybris/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/resources/js/sybris/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/sybris/payload.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/sybris/payload.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/resources/js/sybris/payload.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/sybris/ui.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/js/sybris/ui.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/resources/js/sybris/ui.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sybris/formulaires/Commun aux bases/commun/field-filler.jsp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sybris/formulaires/Commun aux bases/commun/field-filler.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/pages/sybris/formulaires/Commun aux bases/commun/field-filler.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sybris/formulaires/Commun aux bases/commun/field-hidden-readonly.jsp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sybris/formulaires/Commun aux bases/commun/field-hidden-readonly.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/pages/sybris/formulaires/Commun aux bases/commun/field-hidden-readonly.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sybris/formulaires/Commun aux bases/commun/field-select.jsp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sybris/formulaires/Commun aux bases/commun/field-select.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/pages/sybris/formulaires/Commun aux bases/commun/field-select.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sybris/formulaires/Commun aux bases/commun/field-text.jsp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sybris/formulaires/Commun aux bases/commun/field-text.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/pages/sybris/formulaires/Commun aux bases/commun/field-text.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sybris/formulaires/unifie/adresse.jsp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sybris/formulaires/unifie/adresse.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/pages/sybris/formulaires/unifie/adresse.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sybris/formulaires/unifie/detail.jsp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sybris/formulaires/unifie/detail.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/pages/sybris/formulaires/unifie/detail.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sybris/formulaires/unifie/dossier.jsp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sybris/formulaires/unifie/dossier.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/pages/sybris/formulaires/unifie/dossier.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sybris/formulaires/unifie/pret.jsp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sybris/formulaires/unifie/pret.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/pages/sybris/formulaires/unifie/pret.jsp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sybris/formulaires/unifie/rd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sybris/formulaires/unifie/templates.jsp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sybris/index.jsp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sybris/index.jsp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/webapp/WEB-INF/pages/sybris/index.jsp" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ComposerSettings">
+    <execution />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;snvpey&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/snvpey/coolideqs.git&quot;,
+    &quot;accountId&quot;: &quot;7c99a817-73ef-4600-9267-77e7ce921a94&quot;
+  }
+}</component>
+  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="$PROJECT_DIR$/../../../../../../../xampp/php/php.exe" />
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 1
+}</component>
+  <component name="ProjectId" id="3J69k1me4d0uZudUiq0aHxu9erY" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Lenovo/OneDrive/Desktop/UNI/Semestre6/coolideqs&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Lenovo\OneDrive\Desktop\UNI\Semestre6\coolideqs" />
+      <recent name="C:\Users\Lenovo\OneDrive\Desktop\UNI\Semestre6\coolideqs\sybris" />
+    </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.26830.84" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="6acf603a-bcb4-4cb4-9d05-7c05c7a03695" name="Changes" comment="" />
+      <created>1788970789917</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1788970789917</updated>
+      <workItem from="1788970791601" duration="2713000" />
+      <workItem from="1789021719295" duration="3287000" />
+      <workItem from="1789051356145" duration="429000" />
+    </task>
+    <task id="LOCAL-00001" summary="h">
+      <option name="closed" value="true" />
+      <created>1789021760824</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1789021760824</updated>
+    </task>
+    <task id="LOCAL-00002" summary="hhj">
+      <option name="closed" value="true" />
+      <created>1789026320335</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1789026320335</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="h" />
+    <MESSAGE value="hhj" />
+    <option name="LAST_COMMIT_MESSAGE" value="hhj" />
+  </component>
+  <component name="github-copilot-workspace">
+    <instructionFileLocations>
+      <option value=".github/instructions" />
+    </instructionFileLocations>
+    <promptFileLocations>
+      <option value=".github/prompts" />
+    </promptFileLocations>
+  </component>
+</project>

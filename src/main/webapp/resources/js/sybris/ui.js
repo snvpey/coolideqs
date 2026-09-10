@@ -92,7 +92,19 @@ const SybrisUI = {
      * Appelée à chaque changement de base ou de type.
      */
     refreshFieldVisibility() {
-        document.querySelectorAll('[data-bases], [data-types]').forEach(el => {
+        this.refreshFieldVisibilityWithin(document);
+    },
+
+    /**
+     * Comme refreshFieldVisibility(), mais scopée à un sous-arbre donné.
+     * Utilisée par SybrisPayload.addPret() juste après avoir cloné le
+     * modèle de prêt unifié (pret.jsp), pour appliquer une fois la
+     * visibilité bases/types courante à l'intérieur de cette instance
+     * clonée. Pas besoin de la garder "live" ensuite : changer de base ou
+     * de type vide tous les prêts existants (clearPrets()).
+     */
+    refreshFieldVisibilityWithin(root) {
+        root.querySelectorAll('[data-bases], [data-types]').forEach(el => {
             const active = this._matchesCurrentSelection(el.dataset.bases, el.dataset.types);
             el.style.display = active ? '' : 'none';
         });

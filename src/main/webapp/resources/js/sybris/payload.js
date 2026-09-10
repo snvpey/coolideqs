@@ -20,11 +20,11 @@ const SybrisPayload = {
         capital: 0
     },
 
-    /** Templates bruts (HTML) des lignes échéance / capital, par base. */
+    /** Templates bruts (HTML) des lignes échéance / capital (un seul, plus de découpage par base). */
     templates: {},
 
-    /** Templates bruts (HTML) du formulaire prêt, par base + type. */
-    pretTemplates: {},
+    /** Template brut (HTML) unique du formulaire prêt (plus de découpage par base + type). */
+    pretTemplateHtml: '',
 
     /** [{id}] — un par section "Informations prêt n°N" affichée, dans l'ordre. */
     prets: [],
@@ -48,29 +48,25 @@ const SybrisPayload = {
     },
 
     _storeTemplates() {
-        ['A', 'B', 'C'].forEach(base => {
-            ['echeance', 'capital'].forEach(type => {
-                const el = document.getElementById(`template-${type}-${base}`);
-                if (el) {
-                    this.templates[`${type}-${base}`] = el.innerHTML;
-                }
-            });
+        ['echeance', 'capital'].forEach(type => {
+            const el = document.getElementById(`template-${type}`);
+            if (el) {
+                this.templates[type] = el.innerHTML;
+            }
         });
     },
 
     _storePretTemplates() {
-        document.querySelectorAll('#pret-templates .base-type-block').forEach(block => {
-            const key = `${block.dataset.base}-${block.dataset.type}`;
-            this.pretTemplates[key] = block.innerHTML;
-        });
+        const el = document.getElementById('pret-template-unifie');
+        this.pretTemplateHtml = el ? el.innerHTML : '';
     },
 
     _getTemplate(type) {
-        return this.templates[`${type}-${this.getBase()}`];
+        return this.templates[type];
     },
 
     _getPretTemplate() {
-        return this.pretTemplates[`${this.getBase()}-${this.getTypeDossier()}`];
+        return this.pretTemplateHtml;
     },
 
     getBase() {
@@ -131,14 +127,21 @@ const SybrisPayload = {
                 </button>
             </div>
             <div class="collapsible-content" id="pret-instance-${pretId}">
-                <div class="base-type-block" data-base="${base}" data-type="${typeDossier}" style="display:block">
-                    ${this._suffixIds(templateHtml, suffix)}
-                </div>
+                ${this._suffixIds(templateHtml, suffix)}
                 ${echeanceSection}
                 ${capitalSection}
             </div>`;
 
         container.appendChild(wrapper);
+
+        // Le clone contient TOUS les champs tagués bases/types (comme
+        // dossier.jsp) : on applique une fois la visibilité pour la
+        // base/le type courants (pas besoin de la garder "live" ensuite,
+        // changer de base/type vide tous les prêts via clearPrets()).
+        if (window.SybrisUI && typeof window.SybrisUI.refreshFieldVisibilityWithin === 'function') {
+            window.SybrisUI.refreshFieldVisibilityWithin(wrapper);
+        }
+
         this.prets.push({ id: pretId });
 
         const emptyMsg = document.getElementById('prets-empty-message');
@@ -394,10 +397,20 @@ const SybrisPayload = {
 
     /** Lit les champs propres au prêt (hors tableaux échéances/capitaux) d'une instance. */
     _readPretInstanceFields(instanceEl) {
+        const base = this.getBase();
+        const typeDossier = this.getTypeDossier();
         const data = {};
         instanceEl.querySelectorAll('input, select, textarea').forEach(input => {
             if (!input.name) return;
             if (input.closest('.pret-subitems-block')) return;
+            const tagged = input.closest('[data-bases], [data-types]');
+            if (tagged && (tagged.dataset.bases || tagged.dataset.types)) {
+                const basesAttr = (tagged.dataset.bases || '').trim();
+                const typesAttr = (tagged.dataset.types || '').trim();
+                const basesOk = !basesAttr || basesAttr.split(/\s+/).includes(base);
+                const typesOk = !typesAttr || typesAttr.split(/\s+/).includes(typeDossier);
+                if (!basesOk || !typesOk) return; // champ d'une autre base/type : ignoré
+            }
             const value = this._readInputValue(input);
             if (value !== undefined) data[input.name] = value;
         });
@@ -499,6 +512,7 @@ const SybrisPayload = {
     _extractFieldElements(templateHtml) {
         const container = document.createElement('div');
         container.innerHTML = templateHtml;
+        const base = this.getBase();
 
         const visible = [];
         const hidden = [];
@@ -506,7 +520,11 @@ const SybrisPayload = {
         const columns = [];
 
         container.querySelectorAll('.input-container, .form-select').forEach(field => {
-            const isHidden = /display\s*:\s*none/i.test(field.getAttribute('style') || '');
+            const basesAttr = (field.dataset.bases || '').trim();
+            if (basesAttr && !basesAttr.split(/\s+/).includes(base)) return; // pas cette base : ignoré
+
+            const isHidden = /display\s*:\s*none/i.test(field.getAttribute('style') || '')
+                || field.classList.contains('sybris-readonly-field');
             const control = field.querySelector('input, select, textarea');
             if (!control || !control.name) return;
 
