@@ -1,0 +1,32 @@
+
+        <!-- Téléchargement de la doc technique : un bouton par base,
+             visible seulement pour la base sélectionnée (même mécanisme
+             data-bases que dossier.jsp — SybrisUI.refreshFieldVisibility()
+             les bascule automatiquement à chaque selectBase()). -->
+        <div class="doc-download-bar">
+            <button type="button" class="btn btn-secondary" data-bases="A" style="display:none" onclick="telechargerDoc('A')">
+                📄 Télécharger la doc Base A
+            </button>
+            <button type="button" class="btn btn-secondary" data-bases="B" style="display:none" onclick="telechargerDoc('B')">
+                📄 Télécharger la doc Base B
+            </button>
+            <button type="button" class="btn btn-secondary" data-bases="C" style="display:none" onclick="telechargerDoc('C')">
+                📄 Télécharger la doc Base C
+            </button>
+        </div>
+
+        apu
+            },
+
+            /**
+             * Déclenche le téléchargement de la doc technique de la base donnée.
+             */
+            telechargerDoc(base) {
+                window.location.href = this.ctx + '/sybris/doc-base' + base;
+            }
+
+
+
+function telechargerDoc(base) {
+    SybrisApi.telechargerDoc(base);
+}
